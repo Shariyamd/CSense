@@ -2,69 +2,74 @@
 
 ## Overview
 
-CSense is an AI-powered, multi-agent decision intelligence platform designed to help Customer Success Managers (CSMs) make better, faster, and explainable customer decisions.
+CSense is an AI-powered, multi-agent Decision Intelligence Platform designed to help Customer Success Managers (CSMs) proactively identify churn risks, recommend validated Next Best Actions, and automate customer engagement.
 
-Instead of manually analyzing CRM data, meeting history, support tickets, and product usage, CSense orchestrates multiple AI agents to identify customer risks and opportunities, recommend the next best actions, challenge those recommendations through a Devil's Advocate agent, and automate customer engagement workflows.
+Instead of manually analyzing CRM records, product usage, meeting history, support tickets, and stakeholder interactions, CSense orchestrates multiple AI agents to reason over customer data, explain business decisions, validate recommendations through an independent review, and automate execution workflows.
 
-The platform is built using LangGraph for agent orchestration, FastAPI for backend services, Gemini 2.5 Flash for reasoning, and React for an interactive dashboard.
+Unlike traditional chatbots or RAG applications, CSense follows a planner-driven multi-agent architecture where every recommendation is independently challenged and validated before execution, enabling explainable and trustworthy business decisions.
 
 ---
 
-## Features
+# Features
 
 - Multi-Agent AI workflow using LangGraph
 - Planner Agent for dynamic orchestration
 - Context Retrieval from multiple enterprise data sources
-- AI-powered Risk & Opportunity Analysis
+- AI-Powered Risk & Opportunity Analysis
 - Next Best Action Recommendation Engine
-- Devil's Advocate Agent for counter-analysis
-- Shared Memory for future learning
+- Devil's Advocate Agent for independent validation
+- Shared Memory for continuous learning
+- Human-in-the-Loop decision approval
 - Zoom meeting automation
 - Recall.ai meeting transcription
-- AI-generated meeting summaries
+- AI-generated meeting summaries and action items
 - Interactive React dashboard
-- Human-in-the-loop approval before execution
 
 ---
 
-## Technology Stack
+# Technology Stack
 
-### Frontend
+## Frontend
 
 - React (Vite)
 - Tailwind CSS
 - Framer Motion
-- Lucide Icons
+- Lucide React
 - Axios
 
-### Backend
+## Backend
 
 - FastAPI
+- Python
 - LangGraph
-- Gemini 2.5 Flash
 - Pydantic
 - HTTPX
-- Python
 
-### Integrations
+## AI
+
+- Google Gemini 2.5 Flash
+- Multi-Agent Architecture
+
+## Integrations
 
 - Zoom Server-to-Server OAuth
 - Recall.ai
 - Google Gemini API
 
-### Data
+## Data Layer
 
-- JSON-based CRM
+- CRM Data
 - Product Usage
 - Support Tickets
-- Contacts
+- Customer Contacts
 - Meeting History
+- JSON-based Knowledge Store
 
 ---
 
-## Architecture
+# System Architecture
 
-```
+```text
                     React Dashboard
                            │
                            ▼
@@ -73,35 +78,35 @@ The platform is built using LangGraph for agent orchestration, FastAPI for backe
                            ▼
                  LangGraph Agent Pipeline
                            │
-      ┌──────────────────────────────────────────┐
-      │ Planner Agent                            │
-      │          ↓                               │
-      │ Context Retrieval Agent                  │
-      │          ↓                               │
-      │ Risk & Opportunity Agent                 │
-      │          ↓                               │
-      │ Next Best Action Agent                   │
-      │          ↓                               │
-      │ Devil's Advocate Agent                   │
-      │          ↓                               │
-      │ Memory Agent                             │
-      └──────────────────────────────────────────┘
+      ┌─────────────────────────────────────────┐
+      │ Planner Agent                           │
+      │          ↓                              │
+      │ Context Retrieval Agent                 │
+      │          ↓                              │
+      │ Risk Analysis Agent                     │
+      │          ↓                              │
+      │ Recommendation Agent                    │
+      │          ↓                              │
+      │ Devil's Advocate Agent                  │
+      │          ↓                              │
+      │ Memory Agent                            │
+      └─────────────────────────────────────────┘
                            │
                            ▼
                  Decision Workspace
                            │
                            ▼
-             Zoom + Recall.ai Automation
+           Zoom + Recall.ai Automation
                            │
                            ▼
-          AI Meeting Summary & Memory Update
+         AI Meeting Summary & Memory Update
 ```
 
 ---
 
-## Project Structure
+# Project Structure
 
-```
+```text
 CSense/
 │
 ├── backend/
@@ -111,29 +116,27 @@ CSense/
 │   ├── models/
 │   ├── services/
 │   ├── main.py
+│   ├── ai_client.py
 │   ├── requirements.txt
-│   └── .env
+│   └── .env.example
 │
 ├── frontend/
 │   ├── src/
 │   ├── public/
 │   ├── package.json
+│   ├── package-lock.json
 │   └── vite.config.js
 │
 ├── run_app.bat
-├── run_app.ps1
-├── .env.example
 ├── .gitignore
 └── README.md
 ```
 
 ---
 
-## Environment Variables
+# Environment Variables
 
-Create a `.env` file inside the backend folder.
-
-Example:
+Create a `.env` file inside the **backend** folder using `.env.example` as a reference.
 
 ```env
 GOOGLE_API_KEY=your_google_api_key
@@ -145,31 +148,53 @@ ZOOM_CLIENT_ID=your_zoom_client_id
 ZOOM_CLIENT_SECRET=your_zoom_client_secret
 ```
 
+> **Note:** The `.env` file is intentionally excluded from this repository to protect sensitive credentials. Use your own API keys to run the project.
+
 ---
 
-## Installation
+# Installation
 
-### Clone Repository
+## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/CSense.git
+git clone https://github.com/ShafiyaMasrath/CSense.git
+```
 
+```bash
 cd CSense
 ```
 
 ---
 
-## Backend Setup
+## 2. Backend Setup
 
 ```bash
 cd backend
 
-pip install -r requirements.txt
+python -m venv venv
+```
 
+### Activate Virtual Environment
+
+Windows
+
+```bash
+venv\Scripts\activate
+```
+
+Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the backend
+
+```bash
 uvicorn main:app --reload
 ```
 
-Backend runs at
+Backend runs at:
 
 ```
 http://localhost:8000
@@ -177,7 +202,7 @@ http://localhost:8000
 
 ---
 
-## Frontend Setup
+## 3. Frontend Setup
 
 Open another terminal.
 
@@ -189,7 +214,7 @@ npm install
 npm run dev
 ```
 
-Frontend runs at
+Frontend runs at:
 
 ```
 http://localhost:5173
@@ -197,91 +222,101 @@ http://localhost:5173
 
 ---
 
-## Quick Start (Windows)
+# Quick Start (Windows)
 
-You can launch both services automatically.
-
-Command Prompt
+To launch both backend and frontend automatically, simply run:
 
 ```bash
 .\run_app.bat
 ```
 
-PowerShell
+---
 
-```powershell
-.\run_app.ps1
-```
+# Multi-Agent Workflow
+
+1. Customer selected from dashboard
+2. Planner Agent initializes workflow
+3. Context Retrieval Agent gathers enterprise knowledge
+4. Risk Analysis Agent evaluates customer health and business risks
+5. Recommendation Agent generates Next Best Actions
+6. Devil's Advocate Agent validates and challenges recommendations
+7. Human reviews and approves the final strategy
+8. Zoom meeting, executive email, and Recall.ai bot are automatically created
+9. Meeting transcript is analyzed using Gemini
+10. Summary, sentiment, and action items are stored as customer memory
 
 ---
 
-## Workflow
-
-1. Select a customer.
-2. Click **Analyze Customer**.
-3. Planner Agent initializes execution.
-4. Context Retrieval gathers enterprise data.
-5. Risk Analysis evaluates customer health.
-6. Next Best Action Agent generates recommendations.
-7. Devil's Advocate challenges each recommendation.
-8. Human reviews recommendations.
-9. Accepting a recommendation automatically creates:
-   - Zoom Meeting
-   - Email Draft
-   - Recall.ai Recording Bot
-10. After the meeting, transcripts are analyzed and stored as organizational memory.
-
----
-
-## AI Agents
+# AI Agents
 
 ### Planner Agent
 
-Coordinates the execution pipeline.
+Coordinates the complete execution workflow and determines agent sequencing.
 
 ### Context Retrieval Agent
 
-Collects CRM, meeting, support, usage, and contact information.
+Collects customer information from CRM records, support tickets, product usage, meetings, and stakeholder data.
 
 ### Risk Analysis Agent
 
-Identifies churn risk, expansion opportunities, adoption, and champion stability.
+Evaluates churn risk, expansion opportunity, product adoption, and champion stability using Gemini.
 
-### Next Best Action Agent
+### Recommendation Agent
 
-Generates prioritized recommendations.
+Generates prioritized Next Best Actions supported by business evidence.
 
-### Independent Review
+### Devil's Advocate Agent
 
-Challenges recommendations by identifying assumptions, risks, and mitigation strategies.
+Independently challenges recommendations by identifying hidden assumptions, potential risks, and mitigation strategies before execution.
 
 ### Memory Agent
 
-Stores summarized insights for future decision-making.
+Stores summaries, execution history, and customer insights to improve future recommendations.
 
 ---
 
-## Future Enhancements
+# Demo Highlights
 
+- AI-powered Customer Success Dashboard
+- Planner-based Multi-Agent Workflow
+- Explainable Risk Analysis
+- Independent Recommendation Validation
+- Decision Workspace
+- Zoom Meeting Automation
+- Recall.ai Meeting Intelligence
+- Customer Memory & History
+
+---
+
+# Future Enhancements
+
+- Salesforce Integration
+- HubSpot Integration
+- Microsoft Teams Integration
+- Slack Notifications
+- Predictive Churn Forecasting
 - Vector Database Integration
-- Real-time CRM Sync
-- Multi-tenant Architecture
-- Slack & Teams Integration
-- Role-Based Access Control
-- Analytics Dashboard
-- Autonomous Follow-up Agents
+- Voice Sentiment Analysis
+- Multi-language Support
+- Real-time CRM Synchronization
 
 ---
 
-## Demo
+# Team
 
-The repository includes:
+**Team Name:** **IGNITERS**
 
-- Interactive React Dashboard
-- Multi-Agent AI Workflow
-- Zoom Automation
-- Recall.ai Integration
-- Human-in-the-loop Decision Workspace
+### Team Members
+
+- Shafiya Masrath
+- Shariya Md
+- Samreen Shaik
 
 ---
+
+# Acknowledgements
+
+Built for the **XLVentures.AI Intelligent Next Best Action Platform Hackathon**.
+
+CSense demonstrates how reusable multi-agent AI systems can transform Customer Success by combining contextual understanding, explainable reasoning, independent validation, shared memory, and intelligent workflow automation.
 

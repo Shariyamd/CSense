@@ -47,22 +47,24 @@ const TypingLog = ({ lines, onDone }) => {
 
   useEffect(() => {
     if (lineIdx >= lines.length) {
-      if (onDone) setTimeout(onDone, 300);
+      if (onDone) setTimeout(onDone, 400);
       return;
     }
     if (charIdx < lines[lineIdx].length) {
+      // 22 → 42ms: slower character-by-character typing
       const t = setTimeout(() => {
         setCurrent(prev => prev + lines[lineIdx][charIdx]);
         setCharIdx(c => c + 1);
-      }, 22);
+      }, 42);
       return () => clearTimeout(t);
     } else {
+      // 180 → 380ms: longer pause before advancing to next line
       const t = setTimeout(() => {
         setShown(prev => [...prev, lines[lineIdx]]);
         setCurrent('');
         setLineIdx(l => l + 1);
         setCharIdx(0);
-      }, 180);
+      }, 380);
       return () => clearTimeout(t);
     }
   }, [lineIdx, charIdx, lines, onDone]);
@@ -94,7 +96,7 @@ const TypingLog = ({ lines, onDone }) => {
 };
 
 // ─── Animated Counter ──────────────────────────────────────────────────────
-const Counter = ({ from, to, duration = 1.4, prefix = '', suffix = '', className }) => {
+const Counter = ({ from, to, duration = 10, prefix = '', suffix = '', className }) => {
   const [display, setDisplay] = useState(from);
   useEffect(() => {
     let start = null;
@@ -123,7 +125,8 @@ const MetricCard = ({ label, steps, prefix = '', suffix = '', color = 'text-whit
 
   useEffect(() => {
     if (stepIdx < steps.length - 1) {
-      const t = setTimeout(() => setStepIdx(i => i + 1), 700);
+      // 700 → 1600ms: much slower step-to-step animation
+      const t = setTimeout(() => setStepIdx(i => i + 1), 1600);
       return () => clearTimeout(t);
     }
   }, [stepIdx, steps.length]);
@@ -137,7 +140,7 @@ const MetricCard = ({ label, steps, prefix = '', suffix = '', color = 'text-whit
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
+      transition={{ duration: 0.6, delay }}
       className="bg-[#0f1e35] border border-white/8 rounded-2xl p-4 flex flex-col gap-2"
     >
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
@@ -145,7 +148,7 @@ const MetricCard = ({ label, steps, prefix = '', suffix = '', color = 'text-whit
         <Counter
           from={steps[Math.max(0, stepIdx - 1)] || steps[0]}
           to={steps[stepIdx]}
-          duration={0.6}
+          duration={1.4}
           prefix={prefix}
           suffix={suffix}
           className={`text-2xl font-bold tabular-nums ${stepIdx === steps.length - 1 ? finalColor : 'text-white'}`}
@@ -160,7 +163,7 @@ const MetricCard = ({ label, steps, prefix = '', suffix = '', color = 'text-whit
         {steps.map((_, i) => (
           <div
             key={i}
-            className={`h-1 flex-1 rounded-full transition-all duration-500 ${i <= stepIdx ? (stepIdx === steps.length - 1 ? 'bg-rose-500' : 'bg-blue-500') : 'bg-white/10'}`}
+            className={`h-1 flex-1 rounded-full transition-all duration-700 ${i <= stepIdx ? (stepIdx === steps.length - 1 ? 'bg-rose-500' : 'bg-blue-500') : 'bg-white/10'}`}
           />
         ))}
       </div>
@@ -178,7 +181,7 @@ const PipelineBar = ({ activeIdx, completedUpTo }) => (
       return (
         <React.Fragment key={stage.id}>
           <div className="flex flex-col items-center shrink-0">
-            <div className={`flex items-center justify-center w-7 h-7 rounded-full border text-xs font-bold transition-all duration-500 ${
+            <div className={`flex items-center justify-center w-7 h-7 rounded-full border text-xs font-bold transition-all duration-700 ${
               isDone
                 ? 'bg-emerald-500 border-emerald-500 text-white shadow-[0_0_12px_rgba(16,185,129,0.4)]'
                 : isActive
@@ -187,7 +190,7 @@ const PipelineBar = ({ activeIdx, completedUpTo }) => (
             }`}>
               {isDone ? <CheckCircle className="w-3.5 h-3.5" /> : <span>{i + 1}</span>}
             </div>
-            <span className={`text-[9px] font-semibold mt-1.5 uppercase tracking-[0.12em] whitespace-nowrap transition-colors duration-500 ${
+            <span className={`text-[9px] font-semibold mt-1.5 uppercase tracking-[0.12em] whitespace-nowrap transition-colors duration-700 ${
               isDone ? 'text-emerald-400' : isActive ? 'text-blue-300' : 'text-white/20'
             }`}>
               {stage.short}
@@ -195,14 +198,14 @@ const PipelineBar = ({ activeIdx, completedUpTo }) => (
           </div>
           {i < STAGES.length - 1 && (
             <div className="flex-1 h-px mx-1.5 relative overflow-hidden min-w-[16px]">
-              <div className={`absolute inset-0 transition-all duration-700 ${isDone ? 'bg-emerald-500/50' : 'bg-white/8'}`} />
+              <div className={`absolute inset-0 transition-all duration-1000 ${isDone ? 'bg-emerald-500/50' : 'bg-white/8'}`} />
               {isActive && (
                 <motion.div
                   className="absolute inset-0 bg-blue-400/60"
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
                   style={{ transformOrigin: 'left' }}
-                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  transition={{ duration: 1.4, ease: 'easeOut' }}
                 />
               )}
             </div>
@@ -225,7 +228,7 @@ const PhaseContext = ({ onDone }) => {
     'Complete ✓'
   ];
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-xl mx-auto">
       <div className="bg-[#0c1828] border border-white/8 rounded-3xl p-8 shadow-2xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center">
@@ -252,7 +255,7 @@ const PhaseSignals = ({ onDone }) => {
     'Complete ✓'
   ];
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-xl mx-auto">
       <div className="bg-[#0c1828] border border-white/8 rounded-3xl p-8 shadow-2xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-9 h-9 rounded-xl bg-violet-500/15 border border-violet-500/25 flex items-center justify-center">
@@ -272,11 +275,12 @@ const PhaseSignals = ({ onDone }) => {
 const PhaseRisk = ({ onDone }) => {
   const [done, setDone] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => { setDone(true); if (onDone) setTimeout(onDone, 500); }, 3800);
+    // 3800 → 10500ms: wait for all 4 metric cards to fully animate before advancing
+    const t = setTimeout(() => { setDone(true); if (onDone) setTimeout(onDone, 800); }, 10500);
     return () => clearTimeout(t);
   }, [onDone]);
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-2xl mx-auto">
       <div className="bg-[#0c1828] border border-white/8 rounded-3xl p-8 shadow-2xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-9 h-9 rounded-xl bg-rose-500/15 border border-rose-500/25 flex items-center justify-center">
@@ -288,10 +292,10 @@ const PhaseRisk = ({ onDone }) => {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <MetricCard label="Health Score"        steps={[84, 72, 58, 42]}  suffix=""  delay={0}   />
-          <MetricCard label="Churn Risk"          steps={[18, 46, 71, 91]}  suffix="%" delay={0.2} />
-          <MetricCard label="Champion Stability"  steps={[94, 70, 44, 18]}  suffix="%" delay={0.4} />
-          <MetricCard label="Revenue at Risk"     steps={[18, 45, 80, 120]} prefix="$" suffix="K" delay={0.6} />
+          <MetricCard label="Health Score"        steps={[84, 72, 58, 42]}  suffix=""  delay={0}    />
+          <MetricCard label="Churn Risk"          steps={[18, 46, 71, 91]}  suffix="%" delay={0.4}  />
+          <MetricCard label="Champion Stability"  steps={[94, 70, 44, 18]}  suffix="%" delay={0.8}  />
+          <MetricCard label="Revenue at Risk"     steps={[18, 45, 80, 120]} prefix="$" suffix="K" delay={1.2} />
         </div>
       </div>
     </motion.div>
@@ -305,7 +309,7 @@ const PhaseProposed = ({ recommendation, riskAnalysis, showUpdated = false, onCo
   const confidence = showUpdated ? 88 : 82;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-xl mx-auto">
       <div className="bg-gradient-to-br from-[#0a1628] to-[#0d1f3a] border border-blue-500/25 rounded-3xl p-8 shadow-2xl shadow-blue-950/40 relative overflow-hidden">
         {/* Subtle top accent */}
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
@@ -324,6 +328,7 @@ const PhaseProposed = ({ recommendation, riskAnalysis, showUpdated = false, onCo
             <motion.span
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
               className="text-[9px] font-bold uppercase tracking-[0.18em] px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400"
             >
               Updated
@@ -375,7 +380,7 @@ const PhaseProposed = ({ recommendation, riskAnalysis, showUpdated = false, onCo
           <motion.button
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
             whileHover={{ scale: 1.01, y: -1 }}
             whileTap={{ scale: 0.98 }}
             onClick={onViewFinal}
@@ -422,15 +427,16 @@ const PhaseReview = ({ devilReview, onDone }) => {
   const verdict = devilReview?.reviews?.[0]?.final_verdict || 'Recommendation is valid after mitigation.';
 
   useEffect(() => {
-    const t1 = setTimeout(() => setConfidenceVal(74), 1200);
-    const t2 = setTimeout(() => setShowMitigations(true), 2000);
-    const t3 = setTimeout(() => setShowVerdict(true), 3200);
-    const t4 = setTimeout(() => { if (onDone) onDone(); }, 4200);
+    // was: 1200 / 2000 / 3200 / 4200 → stretched to fill ~12s
+    const t1 = setTimeout(() => setConfidenceVal(74),            2800);
+    const t2 = setTimeout(() => setShowMitigations(true),        5200);
+    const t3 = setTimeout(() => setShowVerdict(true),            8500);
+    const t4 = setTimeout(() => { if (onDone) onDone(); },      12000);
     return () => [t1, t2, t3, t4].forEach(clearTimeout);
   }, [onDone]);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-xl mx-auto">
       <div className="bg-gradient-to-br from-[#120a00] to-[#1a1000] border border-amber-500/25 rounded-3xl p-8 shadow-2xl shadow-amber-950/30 relative overflow-hidden">
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
 
@@ -446,7 +452,7 @@ const PhaseReview = ({ devilReview, onDone }) => {
           </div>
           <div className="text-right">
             <p className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5">Confidence</p>
-            <Counter from={92} to={confidenceVal} duration={1.0} suffix="%" className="text-xl font-bold text-amber-400 tabular-nums" />
+            <Counter from={92} to={confidenceVal} duration={2.2} suffix="%" className="text-xl font-bold text-amber-400 tabular-nums" />
           </div>
         </div>
 
@@ -459,7 +465,8 @@ const PhaseReview = ({ devilReview, onDone }) => {
               key={i}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.15 }}
+              // was 0.15s stagger → 0.5s stagger so they reveal slowly
+              transition={{ delay: 0.6 + i * 0.5 }}
               className="flex items-start gap-2.5 text-sm text-slate-300"
             >
               <span className="text-amber-400 shrink-0 mt-0.5">•</span>
@@ -470,7 +477,7 @@ const PhaseReview = ({ devilReview, onDone }) => {
 
         <AnimatePresence>
           {showMitigations && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="border-t border-white/6 pt-4 mb-4">
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: 0.6 }} className="border-t border-white/6 pt-4 mb-4">
               <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-500 mb-2.5">Mitigations</p>
               <div className="space-y-1.5">
                 {mitigations.map((m, i) => (
@@ -478,7 +485,7 @@ const PhaseReview = ({ devilReview, onDone }) => {
                     key={i}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: i * 0.1 }}
+                    transition={{ delay: 0.3 + i * 0.25 }}
                     className="flex items-center gap-2 text-sm text-slate-300"
                   >
                     <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
@@ -495,6 +502,7 @@ const PhaseReview = ({ devilReview, onDone }) => {
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
               className="bg-amber-500/8 border border-amber-500/20 rounded-xl p-3.5"
             >
               <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-amber-400 mb-1">Verdict</p>
@@ -511,13 +519,12 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
   const finalRec = recommendation?.title || 'Proceed with Executive Technical Resolution';
   const confidence = devilReview?.reviews?.[0]?.confidence || 88;
 
-  // Shared API result — fetched once, reused by all three buttons
   const [actionResult, setActionResult] = useState(null);
-  const [loadingAction, setLoadingAction] = useState(null); // 'execute' | 'email' | 'meeting' | null
+  const [loadingAction, setLoadingAction] = useState(null);
   const [error, setError] = useState(null);
 
   const callBackend = async () => {
-    if (actionResult) return actionResult; // already fetched — reuse
+    if (actionResult) return actionResult;
     const res = await fetch('http://localhost:8000/accept-recommendation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -538,7 +545,7 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
     setError(null);
     try {
       await callBackend();
-      onExecute(); // advance to execution checklist phase
+      onExecute();
     } catch (e) {
       setError(e.message);
     } finally {
@@ -567,7 +574,6 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
     try {
       const data = await callBackend();
       const { to, subject, body } = data.email_draft;
-      // Open Gmail compose with pre-filled fields
       const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.open(gmailUrl, '_blank');
     } catch (e) {
@@ -580,7 +586,7 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
   const isLoading = (action) => loadingAction === action;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-xl mx-auto">
       <div className="bg-gradient-to-br from-[#001a0f] to-[#001508] border border-emerald-500/30 rounded-3xl p-8 shadow-2xl shadow-emerald-950/40 relative overflow-hidden">
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
 
@@ -596,7 +602,6 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
 
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 mb-4">Approved Execution Plan</p>
 
-        {/* Synthesis visual */}
         <div className="flex items-center gap-2 mb-5 bg-white/3 border border-white/6 rounded-2xl p-4">
           <div className="flex-1 text-center">
             <p className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold mb-1">Original Proposal</p>
@@ -634,7 +639,7 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
               key={i}
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 + i * 0.1 }}
+              transition={{ delay: 0.2 + i * 0.2 }}
               className="flex items-center gap-2 text-sm text-slate-300"
             >
               <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
@@ -657,7 +662,6 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
           ))}
         </div>
 
-        {/* Success confirmation after API call */}
         <AnimatePresence>
           {actionResult && (
             <motion.div
@@ -680,7 +684,6 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
           )}
         </AnimatePresence>
 
-        {/* Error state */}
         <AnimatePresence>
           {error && (
             <motion.div
@@ -695,7 +698,6 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
         </AnimatePresence>
 
         <div className="flex flex-col gap-2">
-          {/* Execute Strategy — calls backend then advances to checklist */}
           <motion.button
             whileHover={{ scale: 1.01, y: -1 }}
             whileTap={{ scale: 0.98 }}
@@ -710,7 +712,6 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
           </motion.button>
 
           <div className="grid grid-cols-2 gap-2">
-            {/* Executive Email — opens Gmail compose */}
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
@@ -725,7 +726,6 @@ const PhaseFinal = ({ recommendation, devilReview, customer, onExecute }) => {
               <span>Executive Email</span>
             </motion.button>
 
-            {/* Schedule Meeting — opens Zoom host link */}
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
@@ -759,15 +759,16 @@ const PhaseExecution = ({ onDone }) => {
 
   useEffect(() => {
     items.forEach((_, i) => {
+      // was: 350 + i * 420 → now 800 + i * 1500: ~10s total for 6 items
       setTimeout(() => {
         setChecked(prev => [...prev, i]);
-        if (i === items.length - 1 && onDone) setTimeout(onDone, 600);
-      }, 350 + i * 420);
+        if (i === items.length - 1 && onDone) setTimeout(onDone, 1000);
+      }, 800 + i * 1500);
     });
   }, []);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-xl mx-auto">
       <div className="bg-[#0c1828] border border-white/8 rounded-3xl p-8 shadow-2xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center">
@@ -784,16 +785,17 @@ const PhaseExecution = ({ onDone }) => {
               key={i}
               initial={{ opacity: 0.3 }}
               animate={{ opacity: checked.includes(i) ? 1 : 0.3 }}
+              transition={{ duration: 0.5 }}
               className="flex items-center gap-3 p-3 rounded-xl border border-white/6 bg-white/2"
             >
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all duration-400 ${
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all duration-700 ${
                 checked.includes(i)
                   ? 'bg-emerald-500 border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]'
                   : 'border-white/15'
               }`}>
                 {checked.includes(i) && <CheckCircle className="w-3 h-3 text-white" />}
               </div>
-              <span className={`text-sm font-medium transition-colors duration-300 ${checked.includes(i) ? 'text-white' : 'text-slate-600'}`}>
+              <span className={`text-sm font-medium transition-colors duration-500 ${checked.includes(i) ? 'text-white' : 'text-slate-600'}`}>
                 {item}
               </span>
             </motion.div>
@@ -814,7 +816,7 @@ const PhaseHistory = ({ onDone }) => {
     'Complete ✓'
   ];
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-xl mx-auto">
       <div className="bg-[#0c1828] border border-white/8 rounded-3xl p-8 shadow-2xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-9 h-9 rounded-xl bg-violet-500/15 border border-violet-500/25 flex items-center justify-center">
@@ -848,12 +850,12 @@ const Timeline = ({ completedUpTo }) => {
       <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
         {items.map((item, i) => (
           <div key={i} className="flex items-center gap-2 shrink-0">
-            <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all duration-500 ${
+            <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all duration-700 ${
               i < completedUpTo ? 'bg-emerald-500' : 'bg-white/10'
             }`}>
               {i < completedUpTo && <CheckCircle className="w-2.5 h-2.5 text-white" />}
             </div>
-            <span className={`text-[10px] font-medium whitespace-nowrap transition-colors duration-500 ${
+            <span className={`text-[10px] font-medium whitespace-nowrap transition-colors duration-700 ${
               i < completedUpTo ? 'text-emerald-400' : 'text-white/20'
             }`}>{item}</span>
             {i < items.length - 1 && <span className="text-white/10 text-xs">·</span>}
@@ -870,6 +872,7 @@ const TransitionBanner = ({ message }) => (
     initial={{ opacity: 0, scale: 0.95 }}
     animate={{ opacity: 1, scale: 1 }}
     exit={{ opacity: 0, scale: 0.95 }}
+    transition={{ duration: 0.5 }}
     className="flex items-center justify-center py-6"
   >
     <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/5 border border-white/10">
@@ -888,48 +891,43 @@ export default function DecisionWorkspace({
   devilReview,
   onComplete
 }) {
-  // stageIdx: which pipeline stage we're rendering (0–7)
   const [stageIdx, setStageIdx] = useState(0);
-  // completedUpTo: how many stages are done (for pipeline bar + timeline)
   const [completedUpTo, setCompletedUpTo] = useState(0);
-  // sub-state within proposed/review handoff
   const [showUpdatedBadge, setShowUpdatedBadge] = useState(false);
-  const [showTransition, setShowTransition] = useState(null); // null | string message
+  const [showTransition, setShowTransition] = useState(null);
   const [proposedContinued, setProposedContinued] = useState(false);
-  const [phaseContent, setPhaseContent] = useState('phase'); // 'phase' | 'transition'
 
   const advanceTo = useCallback((nextIdx, transitionMsg) => {
     if (transitionMsg) {
       setShowTransition(transitionMsg);
+      // was 2200 → 3500ms for the "bridging" banner
       setTimeout(() => {
         setShowTransition(null);
         setStageIdx(nextIdx);
         setCompletedUpTo(nextIdx);
-      }, 2200);
+      }, 3500);
     } else {
       setStageIdx(nextIdx);
       setCompletedUpTo(nextIdx);
     }
   }, []);
 
-  // Auto-advance for non-interactive phases
   const handleContextDone    = useCallback(() => advanceTo(1), [advanceTo]);
   const handleSignalsDone    = useCallback(() => advanceTo(2), [advanceTo]);
   const handleRiskDone       = useCallback(() => advanceTo(3), [advanceTo]);
   const handleReviewDone     = useCallback(() => {
-    // Return to proposed card with Updated badge — user must click to see final
     setShowUpdatedBadge(true);
     setShowTransition('Reconciling both reviews...');
     setTimeout(() => {
       setShowTransition(null);
-      setStageIdx(3); // back to proposed
-      setCompletedUpTo(4); // review is done
-    }, 2200);
+      setStageIdx(3);
+      setCompletedUpTo(4);
+    }, 3500);
   }, []);
   const handleExecutionDone  = useCallback(() => advanceTo(7), [advanceTo]);
   const handleHistoryDone    = useCallback(() => {
     setCompletedUpTo(8);
-    setTimeout(() => { if (onComplete) onComplete(); }, 800);
+    setTimeout(() => { if (onComplete) onComplete(); }, 1000);
   }, [onComplete]);
 
   const handleContinueReview = useCallback(() => {
@@ -953,13 +951,11 @@ export default function DecisionWorkspace({
       className="fixed inset-0 z-50 flex flex-col bg-[#07111f] overflow-hidden"
       style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
     >
-      {/* Ambient background blobs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-violet-600/4 rounded-full blur-[120px]" />
       </div>
 
-      {/* Top bar: branding + customer */}
       <div className="flex items-center justify-between px-6 py-3.5 border-b border-white/6 bg-[#070e1a] shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-lg bg-blue-500 flex items-center justify-center shadow-[0_0_12px_rgba(59,130,246,0.4)]">
@@ -982,10 +978,8 @@ export default function DecisionWorkspace({
         )}
       </div>
 
-      {/* Pipeline bar */}
       <PipelineBar activeIdx={stageIdx} completedUpTo={completedUpTo} />
 
-      {/* Main scrollable content area */}
       <div className="flex-1 overflow-y-auto scrollbar-hide py-10 px-4 relative z-10">
         <AnimatePresence mode="wait">
           {showTransition ? (
@@ -996,7 +990,7 @@ export default function DecisionWorkspace({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.4 }}
             >
               {stageId === 'context'   && <PhaseContext   onDone={handleContextDone} />}
               {stageId === 'signals'   && <PhaseSignals   onDone={handleSignalsDone} />}
@@ -1031,7 +1025,6 @@ export default function DecisionWorkspace({
         </AnimatePresence>
       </div>
 
-      {/* Bottom timeline */}
       <Timeline completedUpTo={completedUpTo} />
     </motion.div>
   );
